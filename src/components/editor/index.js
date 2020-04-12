@@ -18,39 +18,31 @@ const SlateEditor = () => {
             children: [{ text: '' }]
         }
     ]);
-    const [run, setRun] = useState(true);
+    const [target, setTarget] = useState();
 
     const onChange = (value) => {
         setValue(value);
 
         const { selection } = editor;
         
-        if (selection && Range.isCollapsed(selection) && run) { 
+        if (selection && Range.isCollapsed(selection)) { 
             const [start] = Range.edges(selection);
             const beforeText = Editor.before(editor, start, { unit: 'word' });
             const before = beforeText && Editor.before(editor, beforeText);
             const beforeRange = before && Editor.range(editor, before, start);
             const beforeWord = beforeRange && Editor.string(editor, beforeRange);
 
-            console.log(beforeRange);
-
-            if (beforeWord && run) {
+            if (beforeWord) {
                 objectWords.find(object => {
                     if (beforeWord.match(object.regex)) {
-                        console.log('hey!');
                         beforeRange.anchor.offset++;
+
                         Transforms.select(editor, beforeRange);
-                        const objectElement = { type: 'object', children: [{ text: object.word }], object: object }
-                        setTimeout(() => { 
-                            Transforms.insertNodes(editor, objectElement);
-                            Transforms.move(editor);
-                            Transforms.deselect(editor);
-                        }, 2000);
-                        // Transforms.move(editor);
-                        // Transforms.insertNodes(editor, objectElement);
-                        setRun(false);
+
+                        const objectElement = { type: 'object', object: object, children: [{ text: object.word }] }
+                    
+                        setTarget(objectElement);
                         return;
-                        // Transforms.setNodes(editor, )
                     }
                 });
             }
@@ -58,12 +50,23 @@ const SlateEditor = () => {
 	};
 
     const onKeyDown = (e) => {
-        
+        if (target) {
+            switch (e.key) {
+                case 'Enter':
+                    e.preventDefault();
+
+                    Transforms.insertNodes(editor, target)
+                    Transforms.move(editor);
+                    
+                    setTarget(null);
+                    break;
+                case 'Default':
+                    return;
+            }
+        }
     };
 
     const renderElement = useCallback( props => {
-        console.log(props);
-
         switch(props.element.type) {
             case 'object':
                 return <ObjectElement {...props}/>

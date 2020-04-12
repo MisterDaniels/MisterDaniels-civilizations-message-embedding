@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { FaCoins, FaUserAlt } from 'react-icons/fa';
+import { useSelected, useFocused } from 'slate-react';
 
 const objectWords = [
     {
@@ -14,15 +15,17 @@ const objectWords = [
     }
 ]
 
-const ObjectElement = (props) => {
-    const { object, children } = props.element;
+const ObjectElement = ({ attributes, children, element }) => {
+    const selected = useSelected();
+    const focused = useFocused();
     
-    console.log(props);
-
     return (
-        <span { ...props.attributes }>
+        <span 
+            { ...attributes }
+            contentEditable={ false }>
             <FaCoins />
-            { props.children }
+            { element.object.word }
+            { children }
         </span>
     );
 };
