@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { createEditor, Transforms, Editor, Range, Text } from 'slate';
+import { createEditor, Transforms, Editor, Range } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 
 import './styles.css';
@@ -42,8 +42,11 @@ const SlateEditor = () => {
                         const objectElement = { type: 'object', object: object, children: [{ text: object.word }] }
                     
                         setTarget(objectElement);
-                        return;
+
+                        return true;
                     }
+
+                    return false;
                 });
             }
         }
@@ -60,7 +63,7 @@ const SlateEditor = () => {
                     
                     setTarget(null);
                     break;
-                case 'Default':
+                default:
                     return;
             }
         }
